@@ -279,7 +279,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="form-group">
-                <label for="student_image">รูปถ่ายนิสิต:</label>
+                <label for="student_image">รูปถ่ายนิสิต (อัปโหลดเป็นไฟล์ png เท่านั้น):</label>
                 <input type="file" name="student_image" required>
             </div>
 

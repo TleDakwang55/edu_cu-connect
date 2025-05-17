@@ -14,7 +14,8 @@ if ($conn->connect_error) {
 // ตั้งค่า charset เป็น utf8mb4 เพื่อรองรับภาษาไทยและอีโมจิ
 $conn->set_charset("utf8mb4");
 
-function connectDB() {
+function connectDB()
+{
     global $host, $user, $password, $database, $conn; // เปลี่ยน $username เป็น $user
     if (!$conn) {
         $conn = mysqli_connect($host, $user, $password, $database); // เปลี่ยน $username เป็น $user และ $dbname เป็น $database
@@ -26,7 +27,8 @@ function connectDB() {
     return $conn;
 }
 
-function getStudentInfo($student_code) {
+function getStudentInfo($student_code)
+{
     $conn = connectDB();
     $sql = "SELECT first_name, last_name FROM students WHERE student_code = ?";
     $stmt = mysqli_prepare($conn, $sql);
@@ -36,7 +38,8 @@ function getStudentInfo($student_code) {
     return mysqli_fetch_assoc($result);
 }
 
-function getAvailableCourses() {
+function getAvailableCourses()
+{
     $conn = connectDB();
     $sql = "SELECT course_code, course_name FROM courses"; // ใช้ 'code' แทน 'ccode'
     $result = mysqli_query($conn, $sql);
@@ -48,7 +51,8 @@ function getAvailableCourses() {
     return $courses;
 }
 
-function getCurrentSchedule($student_code) {
+function getCurrentSchedule($student_code)
+{
     $conn = connectDB();
     $sql = "
         SELECT c.DAY AS day, c.TIME AS time, c.course_code, c.course_name
@@ -75,7 +79,8 @@ function getCurrentSchedule($student_code) {
 
 // ฟังก์ชันสำหรับดึงข้อมูลรายวิชาทั้งหมด
 // เหมาะสำหรับใช้ในหน้าจัดการรายวิชา
-function getCourseDetails() {
+function getCourseDetails()
+{
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -115,7 +120,8 @@ function getCourseDetails() {
 
 // ฟังก์ชันสำหรับค้นหารายวิชาตามคำค้นหา
 // เหมาะสำหรับใช้ในหน้าจัดการรายวิชาเมื่อมีคำค้นหา
-function searchCourses($search_term) { // รับค่า search_term เป็น parameter ที่ต้องมี
+function searchCourses($search_term)
+{ // รับค่า search_term เป็น parameter ที่ต้องมี
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -148,9 +154,9 @@ function searchCourses($search_term) { // รับค่า search_term เป�
         // $bind_types .= "s";
         // $bind_params[] = $like_search_term;
     } else {
-         // ถ้าไม่มีคำค้นหา (ไม่ควรเกิดขึ้นถ้าเรียกใช้ฟังก์ชันนี้ถูกที่)
-         // คืนค่าอาเรย์ว่าง
-         return [];
+        // ถ้าไม่มีคำค้นหา (ไม่ควรเกิดขึ้นถ้าเรียกใช้ฟังก์ชันนี้ถูกที่)
+        // คืนค่าอาเรย์ว่าง
+        return [];
     }
 
 
@@ -158,9 +164,9 @@ function searchCourses($search_term) { // รับค่า search_term เป�
     if (!empty($where_clauses)) {
         $sql .= " WHERE " . implode(" OR ", $where_clauses); // ใช้ OR ในการค้นหาหลายคอลัมน์
     } else {
-         // ถ้าไม่มีเงื่อนไข WHERE (กรณี search_term ว่าง)
-         // อาจจะคืนค่าว่าง หรือดึงทั้งหมดก็ได้ แต่ตาม logic ฟังก์ชันนี้ควรถูกเรียกเมื่อมีคำค้นหาเท่านั้น
-         return [];
+        // ถ้าไม่มีเงื่อนไข WHERE (กรณี search_term ว่าง)
+        // อาจจะคืนค่าว่าง หรือดึงทั้งหมดก็ได้ แต่ตาม logic ฟังก์ชันนี้ควรถูกเรียกเมื่อมีคำค้นหาเท่านั้น
+        return [];
     }
 
 
@@ -184,7 +190,7 @@ function searchCourses($search_term) { // รับค่า search_term เป�
         if (!empty($bind_params)) {
             // ใช้ mysqli_stmt_bind_param เพื่อ bind parameter
             // ต้องส่งประเภทข้อมูลและค่าต่างๆ
-             mysqli_stmt_bind_param($stmt, $bind_types, ...$bind_params);
+            mysqli_stmt_bind_param($stmt, $bind_types, ...$bind_params);
         }
 
         // ประมวลผล Statement
@@ -194,18 +200,18 @@ function searchCourses($search_term) { // รับค่า search_term เป�
 
             // ตรวจสอบว่าการรับผลลัพธ์สำเร็จหรือไม่
             if ($result) {
-                 // ดึงข้อมูลแต่ละแถวที่ได้จากผลลัพธ์มาเก็บในอาเรย์
+                // ดึงข้อมูลแต่ละแถวที่ได้จากผลลัพธ์มาเก็บในอาเรย์
                 while ($row = mysqli_fetch_assoc($result)) {
                     $courses[] = $row;
                 }
                 mysqli_free_result($result); // คืนหน่วยความจำของผลลัพธ์
             } else {
-                 // กรณีเกิดข้อผิดพลาดในการรับผลลัพธ์
-                 // error_log("Error getting result in searchCourses: " . mysqli_error($conn));
-                 // echo "DEBUG: Error getting result (Search): " . mysqli_error($conn) . "<br>"; // Debugging
-                 // คืนค่า false หากเกิดข้อผิดพลาด
-                 mysqli_stmt_close($stmt); // ปิด statement ก่อนคืนค่า
-                 return false;
+                // กรณีเกิดข้อผิดพลาดในการรับผลลัพธ์
+                // error_log("Error getting result in searchCourses: " . mysqli_error($conn));
+                // echo "DEBUG: Error getting result (Search): " . mysqli_error($conn) . "<br>"; // Debugging
+                // คืนค่า false หากเกิดข้อผิดพลาด
+                mysqli_stmt_close($stmt); // ปิด statement ก่อนคืนค่า
+                return false;
             }
         } else {
             // กรณีเกิดข้อผิดพลาดในการรัน Statement
@@ -236,7 +242,8 @@ function searchCourses($search_term) { // รับค่า search_term เป�
 
 // ฟังก์ชันสำหรับดึงข้อมูลรายวิชาเฉพาะตาม ID
 // เหมาะสำหรับใช้ในหน้าแก้ไขรายวิชา
-function getCourseDetailsById($course_id) {
+function getCourseDetailsById($course_id)
+{
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -282,27 +289,28 @@ function getCourseDetailsById($course_id) {
         return false;
     }
 }
-function getCurrentSemesterAndYear($conn) {
+function getCurrentSemesterAndYear($conn)
+{
     // ... โค้ดเดิมของฟังก์ชันนี้ ที่รับ $conn และใช้ $conn ในการคิวรี่ตาราง semester ...
     // ต้องแน่ใจว่าฟังก์ชันนี้ทำงานถูกต้องและคืนค่า ['semester', 'academic_year'] หรือ null/false
-     $current_date = date('Y-m-d');
-     $query = "SELECT semester, academic_year FROM semester WHERE start_date <= ? AND end_date >= ? LIMIT 1";
-     if ($stmt = $conn->prepare($query)) { // <-- ใช้ $conn ที่รับเข้ามา
-         $stmt->bind_param("ss", $current_date, $current_date);
-         $stmt->execute();
-         $result = $stmt->get_result();
-         if ($semester_info = $result->fetch_assoc()) {
-             $stmt->close();
-             return $semester_info;
-         } else {
-             $stmt->close();
-             error_log("No active semester found: " . $current_date);
-             return null;
-         }
-     } else {
-          error_log("DB Error (Prepare Get Current Semester): " . $conn->error);
-          return false;
-     }
+    $current_date = date('Y-m-d');
+    $query = "SELECT semester, academic_year FROM semester WHERE start_date <= ? AND end_date >= ? LIMIT 1";
+    if ($stmt = $conn->prepare($query)) { // <-- ใช้ $conn ที่รับเข้ามา
+        $stmt->bind_param("ss", $current_date, $current_date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($semester_info = $result->fetch_assoc()) {
+            $stmt->close();
+            return $semester_info;
+        } else {
+            $stmt->close();
+            error_log("No active semester found: " . $current_date);
+            return null;
+        }
+    } else {
+        error_log("DB Error (Prepare Get Current Semester): " . $conn->error);
+        return false;
+    }
 }
 
 
@@ -310,7 +318,8 @@ function getCurrentSemesterAndYear($conn) {
 // คิวรี่จากตาราง courses โดยตรง
 // *** แก้ไข Query ให้เลือก credits และ description ด้วย (สมมติว่าอยู่ในตาราง courses) ***
 // *** รับ Parameter $conn ***
-function getAvailableCoursesForRegistration($conn) {
+function getAvailableCoursesForRegistration($conn)
+{
     // ดึงคอลัมน์ที่ต้องการแสดงจากตาราง courses
     // Assumption: ตาราง 'courses' มี course_code (PK), course_name, credits, description
     $query = "SELECT 
@@ -350,7 +359,8 @@ function getAvailableCoursesForRegistration($conn) {
 // คิวรี่จากตาราง enrollments และ join กับ courses
 // *** แก้ไข Query ให้เลือก credits และ description จากตาราง courses ***
 // *** รับ Parameter $conn ***
-function getRegisteredCourses($student_code, $semester, $academic_year, $conn) {
+function getRegisteredCourses($student_code, $semester, $academic_year, $conn)
+{
     // คิวรี่ตาราง enrollments และเชื่อมกับ courses เพื่อดึงรายละเอียดวิชาที่ลงทะเบียนแล้ว
     // กรองตาม student_code, semester, และ academic_year
     $query = "SELECT
@@ -387,63 +397,91 @@ function getRegisteredCourses($student_code, $semester, $academic_year, $conn) {
         return $registered_courses;
 
     } else {
-         error_log("DB Error (Get Registered Courses): " . $conn->error);
-         return false; // ระบุว่าเกิดข้อผิดพลาดฐานข้อมูล
+        error_log("DB Error (Get Registered Courses): " . $conn->error);
+        return false; // ระบุว่าเกิดข้อผิดพลาดฐานข้อมูล
     }
 }
 
 // ฟังก์ชันสำหรับลงทะเบียนรายวิชา (INSERT into enrollments)
 // *** ควรรับ Parameter $conn ***
 // *** ต้องบันทึก semester และ academic_year (ซึ่งเราได้แก้ไขไปแล้ว) ***
-function registerCourse($student_code, $course_code, $semester, $academic_year, $conn) {
+function registerCourse($student_code, $course_code, $semester, $academic_year, $conn)
+{
     // ... โค้ดเดิมของฟังก์ชัน registerCourse ที่รับ $conn, semester, year และใช้ $conn ...
     // ตรวจสอบว่านิสิตลงทะเบียนวิชานี้ในภาค/ปีนี้แล้วหรือยัง
-     $query_check = "SELECT enrollment_id FROM enrollments WHERE student_code = ? AND course_code = ? AND semester = ? AND academic_year = ?";
-      if ($stmt_check = $conn->prepare($query_check)) { // ใช้ $conn ที่รับเข้ามา
-          $stmt_check->bind_param("ssss", $student_code, $course_code, $semester, $academic_year);
-          $stmt_check->execute();
-          $stmt_check->store_result();
-          if ($stmt_check->num_rows > 0) {
-              $stmt_check->close();
-              return "คุณได้ลงทะเบียนวิชานี้ในภาคการศึกษานี้แล้ว";
-          }
-          $stmt_check->close();
-      } else { error_log("DB Error (Prepare Check Enrollment): " . $conn->error); return "เกิดข้อผิดพลาดในการตรวจสอบการลงทะเบียน: " . $conn->error; }
+    $query_check = "SELECT enrollment_id FROM enrollments WHERE student_code = ? AND course_code = ? AND semester = ? AND academic_year = ?";
+    if ($stmt_check = $conn->prepare($query_check)) { // ใช้ $conn ที่รับเข้ามา
+        $stmt_check->bind_param("ssss", $student_code, $course_code, $semester, $academic_year);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+        if ($stmt_check->num_rows > 0) {
+            $stmt_check->close();
+            return "คุณได้ลงทะเบียนวิชานี้ในภาคการศึกษานี้แล้ว";
+        }
+        $stmt_check->close();
+    } else {
+        error_log("DB Error (Prepare Check Enrollment): " . $conn->error);
+        return "เกิดข้อผิดพลาดในการตรวจสอบการลงทะเบียน: " . $conn->error;
+    }
 
-     // Insert
-     $query_insert = "INSERT INTO enrollments (student_code, course_code, semester, academic_year, enrollment_date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
-     if ($stmt_insert = $conn->prepare($query_insert)) { // ใช้ $conn ที่รับเข้ามา
-         $stmt_insert->bind_param("ssii", $student_code, $course_code, $semester, $academic_year);
-         if ($stmt_insert->execute()) { $stmt_insert->close(); return true; }
-         else { $stmt_insert->close(); error_log("DB Error (Execute Register Course): " . $conn->error); return "เกิดข้อผิดพลาดในการบันทึกการลงทะเบียน: " . $conn->error; }
-     } else { error_log("DB Error (Prepare Register Course): " . $conn->error); return "เกิดข้อผิดพลาดในการเตรียมคำสั่งลงทะเบียน: " . $conn->error; }
+    // Insert
+    $query_insert = "INSERT INTO enrollments (student_code, course_code, semester, academic_year, enrollment_date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+    if ($stmt_insert = $conn->prepare($query_insert)) { // ใช้ $conn ที่รับเข้ามา
+        $stmt_insert->bind_param("ssii", $student_code, $course_code, $semester, $academic_year);
+        if ($stmt_insert->execute()) {
+            $stmt_insert->close();
+            return true;
+        } else {
+            $stmt_insert->close();
+            error_log("DB Error (Execute Register Course): " . $conn->error);
+            return "เกิดข้อผิดพลาดในการบันทึกการลงทะเบียน: " . $conn->error;
+        }
+    } else {
+        error_log("DB Error (Prepare Register Course): " . $conn->error);
+        return "เกิดข้อผิดพลาดในการเตรียมคำสั่งลงทะเบียน: " . $conn->error;
+    }
 }
 
 // ฟังก์ชันสำหรับยกเลิกการลงทะเบียน (DELETE from enrollments)
 // *** ควรรับ Parameter $conn ***
 // *** ต้องกรองด้วย semester และ academic_year (ซึ่งเราได้แก้ไขไปแล้ว) ***
-function unregisterCourse($student_code, $course_code, $semester, $academic_year, $conn) {
+function unregisterCourse($student_code, $course_code, $semester, $academic_year, $conn)
+{
     // ... โค้ดเดิมของฟังก์ชัน unregisterCourse ที่รับ $conn, semester, year และใช้ $conn ...
     // หากตาราง enrollments ใช้ course_code, semester, year เป็น Unique key ร่วมกัน
     $query_delete = "DELETE FROM enrollments WHERE student_code = ? AND course_code = ? AND semester = ? AND academic_year = ?";
     if ($stmt_delete = $conn->prepare($query_delete)) { // ใช้ $conn ที่รับเข้ามา
         $stmt_delete->bind_param("ssss", $student_code, $course_code, $semester, $academic_year);
         if ($stmt_delete->execute()) {
-             if ($stmt_delete->affected_rows > 0) { $stmt_delete->close(); return true; }
-             else { $stmt_delete->close(); return "ไม่พบรายการลงทะเบียนที่ต้องการยกเลิก"; }
-        } else { $stmt_delete->close(); error_log("DB Error (Execute Unregister Course): " . $conn->error); return "เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน: " . $conn->error; }
-    } else { error_log("DB Error (Prepare Unregister Course): " . $conn->error); return "เกิดข้อผิดพลาดในการเตรียมคำสั่งยกเลิกการลงทะเบียน: " . $conn->error; }
+            if ($stmt_delete->affected_rows > 0) {
+                $stmt_delete->close();
+                return true;
+            } else {
+                $stmt_delete->close();
+                return "ไม่พบรายการลงทะเบียนที่ต้องการยกเลิก";
+            }
+        } else {
+            $stmt_delete->close();
+            error_log("DB Error (Execute Unregister Course): " . $conn->error);
+            return "เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน: " . $conn->error;
+        }
+    } else {
+        error_log("DB Error (Prepare Unregister Course): " . $conn->error);
+        return "เกิดข้อผิดพลาดในการเตรียมคำสั่งยกเลิกการลงทะเบียน: " . $conn->error;
+    }
 }
 
 
 // ฟังก์ชัน Helper เพื่อดึง Error ล่าสุดจากฐานข้อมูล
 // *** ควรรับ Parameter $conn ***
-function getLastDBError($conn) {
+function getLastDBError($conn)
+{
     // *** ใช้ $conn ที่รับเข้ามา ***
     return $conn->error;
 }
 
-function getStudentSchedule($student_code) {
+function getStudentSchedule($student_code)
+{
     global $conn; // Assuming $conn is your database connection
 
     $sql = "SELECT 
@@ -468,9 +506,10 @@ function getStudentSchedule($student_code) {
     return $schedule;
 }
 
-function getStudentData($student_code) {
+function getStudentData($student_code)
+{
     $conn = connectDB(); // Ensure the database connection is established
-        $sql = "SELECT
+    $sql = "SELECT
                     s.student_code,
                     s.first_name,
                     s.last_name,
@@ -492,8 +531,8 @@ function getStudentData($student_code) {
                     majors m ON si.major_id = m.major_id      -- Corrected join condition to use si.major_id
                 WHERE
                     s.student_code = '$student_code'";
-    
-        $result = mysqli_query($conn, $sql);
+
+    $result = mysqli_query($conn, $sql);
     $result = mysqli_query($conn, $sql);
     if (mysqli_num_rows($result) > 0) {
         return mysqli_fetch_assoc($result);
@@ -502,7 +541,8 @@ function getStudentData($student_code) {
     }
 }
 // ฟังก์ชันสำหรับดึงข้อมูลคณะ โดยอ้างอิงจากรหัสนิสิต
-function getFaculties($student_code){
+function getFaculties($student_code)
+{
     global $conn;
     $sql = "SELECT f.faculty_id, f.faculty_name
             FROM faculties f
@@ -511,7 +551,7 @@ function getFaculties($student_code){
     $result = mysqli_query($conn, $sql);
     $faculties = array();
     if (mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $faculties[] = $row;
         }
     }
@@ -519,7 +559,8 @@ function getFaculties($student_code){
 }
 
 // ฟังก์ชันสำหรับดึงข้อมูลสาขา โดยอ้างอิงจากรหัสนิสิต
-function getMajors($student_code){
+function getMajors($student_code)
+{
     global $conn;
     $sql = "SELECT m.major_id, m.major_name
             FROM majors m
@@ -528,20 +569,22 @@ function getMajors($student_code){
     $result = mysqli_query($conn, $sql);
     $majors = array();
     if (mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) {
+        while ($row = mysqli_fetch_assoc($result)) {
             $majors[] = $row;
         }
     }
     return $majors;
 }
-function updateStudentInfo($student_code, $email, $phone_number, $faculty_id, $major_id, $year, $date_of_birth, $address) {
+function updateStudentInfo($student_code, $email, $phone_number, $faculty_id, $major_id, $year, $date_of_birth, $address)
+{
     global $conn; // ใช้ connection ที่สร้างไว้แล้ว
     $sql = "UPDATE student_info SET email = ?, phone_number = ?, faculty_id = ?, major_id = ?, year = ?, date_of_birth = ?, address = ? WHERE student_code = ?";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "ssiiisss", $email, $phone_number, $faculty_id, $major_id, $year, $date_of_birth, $address, $student_code);
     return mysqli_stmt_execute($stmt);
 }
-function getStudentProfilePicture($student_code) {
+function getStudentProfilePicture($student_code)
+{
     global $conn; // ใช้ connection ที่สร้างไว้แล้ว
     $sql = "SELECT profile_picture FROM student_info WHERE student_code = ?";
     $stmt = mysqli_prepare($conn, $sql);
@@ -615,7 +658,7 @@ function handleFileUpload($input_name)
         // Create a unique file name (using student code and original extension)
         global $student_code; // Assuming $student_code is available in this scope
         $new_file_name = "{$student_code}.{$file_ext}";
-        $destination_path = "{$upload_dir}{$new_file_name}";  // Set the desired path
+        $destination_path = ".."+"..{$upload_dir}{$new_file_name}";  // Set the desired path
 
         // Move the uploaded file to the destination directory
         if (move_uploaded_file($file_tmp_name, $destination_path)) {
@@ -666,7 +709,8 @@ function storeStudentDocuments(
     }
 }
 // ฟังก์ชันสำหรับดึงข้อมูลประกาศทั้งหมด
-function getAnnouncements() {
+function getAnnouncements()
+{
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -715,7 +759,8 @@ function getAnnouncements() {
 
 // ฟังก์ชันสำหรับดึงข้อมูลประกาศเฉพาะตาม ID จากตาราง 'news'
 // พร้อมชื่อผู้ประกาศ (ที่เก็บใน created_at)
-function getAnnouncementById($announcement_id) {
+function getAnnouncementById($announcement_id)
+{
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -774,7 +819,8 @@ function getAnnouncementById($announcement_id) {
 // ฟังก์ชันสำหรับดึงข้อมูลนักศึกษาทั้งหมดจากตาราง 'students'
 // เหมาะสำหรับใช้ในหน้าจัดการผู้ใช้
 // ไม่ดึงข้อมูลรหัสผ่านเพื่อความปลอดภัย
-function getStudentDetails() {
+function getStudentDetails()
+{
     // เรียกใช้ฟังก์ชันเชื่อมต่อฐานข้อมูลที่มีอยู่ในไฟล์เดียวกัน
     // ตรวจสอบให้แน่ใจว่าฟังก์ชัน connectDB() ทำงานได้อย่างถูกต้องและคืนค่าการเชื่อมต่อ
     $conn = connectDB();
@@ -815,7 +861,8 @@ function getStudentDetails() {
     }
     // ไม่ปิดการเชื่อมต่อที่นี่
 }
-function getStudentById($student_id) {
+function getStudentById($student_id)
+{
     $conn = connectDB(); // เชื่อมต่อฐานข้อมูล
 
     // ตรวจสอบการเชื่อมต่อ
@@ -863,7 +910,8 @@ function getStudentById($student_id) {
         return false;
     }
 }
-function getSemesters() {
+function getSemesters()
+{
     // เรียกใช้ฟังก์ชันเชื่อมต่อฐานข้อมูลที่มีอยู่ในไฟล์เดียวกัน
     // ตรวจสอบให้แน่ใจว่าฟังก์ชัน connectDB() ทำงานได้อย่างถูกต้องและคืนค่าการเชื่อมต่อ
     $conn = connectDB();
@@ -903,7 +951,8 @@ function getSemesters() {
     }
     // ไม่ปิดการเชื่อมต่อที่นี่
 }
-function getAnnouncementsByTeacher($teacherStaffId, $conn) {
+function getAnnouncementsByTeacher($teacherStaffId, $conn)
+{
     // คิวรี่ตาราง news โดยกรองตาม author_id
     $query = "SELECT id, title, details, media, date, author_id, created_at FROM news WHERE author_id = ? ORDER BY date DESC, created_at DESC";
 
@@ -930,7 +979,8 @@ function getAnnouncementsByTeacher($teacherStaffId, $conn) {
 }
 
 // *** ฟังก์ชันนี้ต้องรับ Parameter สองตัว: รหัสอาจารย์ ($teacherStaffId) และ Object การเชื่อมต่อฐานข้อมูล ($conn) ***
-function getTeacherCourseAssignments($teacherStaffId, $conn) {
+function getTeacherCourseAssignments($teacherStaffId, $conn)
+{
     // *** สำคัญ: ตรวจสอบว่า $conn เป็น Object การเชื่อมต่อฐานข้อมูลที่ถูกต้องหรือไม่ ***
     // การตรวจสอบนี้จะช่วยป้องกัน Error "Call to a member function prepare() on null" หากมีการเรียกใช้ฟังก์ชันนี้โดยไม่ได้ส่ง $conn หรือส่งค่าที่ไม่ใช่การเชื่อมต่อ
     if ($conn === null || !is_object($conn) || !method_exists($conn, 'prepare')) {
@@ -993,7 +1043,8 @@ function getTeacherCourseAssignments($teacherStaffId, $conn) {
         return false;
     }
 }
-function getAcademicResults($student_code) {
+function getAcademicResults($student_code)
+{
     global $conn; // ใช้ตัวแปรการเชื่อมต่อฐานข้อมูลที่กำหนดแบบ global
 
     // ตรวจสอบว่ามีการเชื่อมต่อฐานข้อมูลหรือไม่
@@ -1053,7 +1104,8 @@ function getAcademicResults($student_code) {
         return false;
     }
 }
-function getGradePoint($grade) {
+function getGradePoint($grade)
+{
     // ทำความสะอาดเกรด (ลบช่องว่าง) และแปลงเป็นตัวพิมพ์ใหญ่เพื่อเปรียบเทียบ
     $cleaned_grade = strtoupper(trim($grade));
 
@@ -1089,7 +1141,8 @@ function getGradePoint($grade) {
             return null;
     }
 }
-function getAllFaculties() {
+function getAllFaculties()
+{
     global $conn; // Access the global database connection variable
 
     // Prepare the SQL query
@@ -1120,7 +1173,8 @@ function getAllFaculties() {
  * @global mysqli $conn The database connection object.
  * @return array An array of associative arrays representing majors, or an empty array on failure.
  */
-function getAllMajors() {
+function getAllMajors()
+{
     global $conn; // Access the global database connection variable
 
     // Prepare the SQL query

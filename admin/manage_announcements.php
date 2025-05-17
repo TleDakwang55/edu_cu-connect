@@ -362,7 +362,7 @@ if (isset($conn) && $conn) {
                                 <th>ID</th>
                                 <th>หัวข้อ</th>
                                 <th>รายละเอียด</th>
-                                <th>ผู้ประกาศ</th> <th>วันที่สร้าง</th>
+                                <th>ผู้ประกาศ</th>
                                 <th>สื่อ</th>
                                 <th>วันที่</th>
                                 <th>การจัดการ</th>
@@ -374,8 +374,14 @@ if (isset($conn) && $conn) {
                                     <td><?php echo htmlspecialchars($item['id']); ?></td>
                                     <td><?php echo htmlspecialchars($item['title']); ?></td>
                                     <td><?php echo nl2br(htmlspecialchars($item['details'])); ?></td>
-                                    <td><?php echo htmlspecialchars($item['created_at'] ?? '-'); ?></td> <td><?php echo htmlspecialchars($item['created_at']); ?></td>
-                                    <td><?php echo htmlspecialchars($item['media'] ?? '-'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['created_at'] ?? '-'); ?></td>
+                                    <td>
+                                        <?php if (!empty($item['media'])): ?>
+                                            <a href="<?php echo htmlspecialchars($item['media']); ?>" target="_blank">ดูสื่อ</a>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?php echo htmlspecialchars($item['date']); ?></td>
                                     <td class="action-buttons">
                                         <a href="edit_announcement.php?id=<?php echo $item['id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>

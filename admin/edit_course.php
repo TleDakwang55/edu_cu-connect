@@ -8,6 +8,7 @@ include '../config/db.php'; // ปรับพาธตามโครงสร�
 // Include the functions file
 // ตรวจสอบให้แน่ใจว่าพาธไปยัง functions.php ถูกต้อง
 include '../include/functions.php'; // รวมไฟล์ที่มี connectDB() และ getCourseDetailsById()
+$admin_staff_id = $_SESSION['staff_id'] ?? 1234; // Get admin staff ID from session
 $user_id = $_SESSION['user_id'] ?? null; // Get user ID from session
 $admin_name = $_SESSION['name'] ?? 'ผู้ดูแลระบบ'; // Get admin name from session
 
@@ -243,7 +244,9 @@ if (isset($conn) && $conn) {
                 <h2>Admin Panel</h2>
                 <div class="admin-info">
                     ยินดีต้อนรับ, <?php echo htmlspecialchars($admin_name); ?><br>
-                    รหัสเจ้าหน้าที่: <?php echo htmlspecialchars($admin_staff_id); ?>
+                    <strong>ผู้ดูแลระบบ</strong><br>
+                    รหัสเจ้าหน้าที่: <?php echo htmlspecialchars($admin_staff_id); ?> <br>
+                    <strong>รหัสผู้ใช้: <?php echo htmlspecialchars($user_id); ?></strong>
                 </div>
             </div>
 

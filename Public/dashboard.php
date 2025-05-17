@@ -39,6 +39,7 @@ if ($result_news && $result_news->num_rows > 0) {
         $news_items[] = $row;
     }
 }
+$profile_pic = getStudentProfilePicture($student_code);
 ?>
 
 <!DOCTYPE html>

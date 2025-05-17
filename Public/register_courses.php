@@ -81,16 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($registration_result === true) {
                 $_SESSION['success_message'] = "ลงทะเบียนเรียนสำเร็จ";
+                header("Location: register_courses.php?success=1");
+                exit();
             } else {
                 // Error message มาจากฟังก์ชัน registerCourse เอง
                 $_SESSION['error_message'] = "เกิดข้อผิดพลาดในการลงทะเบียนเรียน: {$registration_result}";
+                header("Location: register_courses.php?error=1");
+                exit();
             }
         } else {
-             $_SESSION['error_message'] = "ไม่สามารถลงทะเบียนเรียนได้: ไม่สามารถกำหนดภาคการศึกษาและปีการศึกษาปัจจุบันได้";
+             $_SESSION['error_message'] = "ไม่สามารถลงทะเบียนเรียนได้: ไม่สามารถกำหนดภาคการศึกษาและปีการศึกษาปัจจุบันได้ หรือยังไม่สามารถลงทะเบียนได้ในภาคการศึกษานี้";
+             header("Location: register_courses.php?error=2");   
+             exit();
         }
-         // Redirect กลับมาหน้าเดิมหลังประมวลผล POST
-        header("Location: register_courses.php");
-        exit();
 
     } elseif (isset($_POST['unregister_course'])) {
         $course_code_to_unregister = $_POST['unregister_course']; // รับรหัสวิชาจากฟอร์มยกเลิก
@@ -110,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               $_SESSION['error_message'] = "ไม่สามารถยกเลิกการลงทะเบียนได้: ไม่สามารถกำหนดภาคการศึกษาและปีการศึกษาปัจจุบันได้";
          }
          // Redirect กลับมาหน้าเดิมหลังประมวลผล POST
-         header("Location: register_courses.php");
+         header("Location: register_courses.php?success=1");
          exit();
     }
 }
